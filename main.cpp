@@ -1,83 +1,65 @@
 #include <iostream>
 #include <random>
 #include <fstream>
-
 #include "photon.h"
+#include <sys/resource.h>
 
 using namespace std;
+      
+random_device rd;
+mt19937 gen(rd());
+uniform_real_distribution<> dis(0, 1);
 
-double n0 = 1;
-double n1 = 1.3;
-double n2 = 1.5;
-double n3 = 1;
+double get_random()
+{
+    return dis(gen);
+}
 
-double g1 = 0.5;
-double g2 = 0.3;
+double mi_a(int n)
+{
+    return n == 1 ? mia1 : mia2;
+}
 
-double h1 = 1.3;
-double h2 = 1.5;
+double mi_s(int n)
+{
+    return n == 1 ? mis1 : mis2;
+}
 
-double mia1 = 10;
-double mia2 = 20;
-double mis1 = 90;
-double mis2 = 90;
+double get_g(int n)
+{
+    return n == 1 ? g1 : g2;
+}
 
-double romax = 1;
+double get_R(double n1, double n2, double cos_theta1)
+{
+    double sin_theta1 = sqrt(1 - pow(cos_theta1, 2));
+    double sin_theta2 = sin_theta1 * (n1 / n2);
+    double cos_theta2 = sqrt(1 - pow(sin_theta1, 2));
 
-double Nfot = 1e6;
+    return (
+        pow(sin_theta1 * cos_theta2 - cos_theta1 * sin_theta2, 2) / 2 *
+        (pow(cos_theta1 * cos_theta2 + sin_theta1 * sin_theta2, 2) + pow(cos_theta1 * cos_theta2 - sin_theta1 * sin_theta2, 2)) /
+        (pow(sin_theta1 * cos_theta2 + cos_theta1 * sin_theta2, 2) * pow(cos_theta1 * cos_theta2 + sin_theta1 * sin_theta2, 2))
+    );
 
-double z1 = 0.1;
-double z2 = 0.1;
-
-double dz = (z1 + z2) / 100;
-double dr = romax / 100;
-
+}
 
 int main()
 {
-    ofstream photon_pos;
-    photon_pos.open("photon_pos.csv");
-        
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<> dis(0, 1);
 
     double A[100][100] {};
+    double Abs = 0;
+    double Rd = 0;
+    double Tr = 0;
 
-    Photon a = Photon();
-    a.move_photon(- (log(dis(gen))) / (mia1 + mis1));
-
-    double delta_w = a.w * mia1 / (mia1 + mis1);
-
-    a.change_w(delta_w);
-    
-    double t = sqrt(pow(a.r.x, 2) + pow(a.r.y, 2));
-    int i = floor(t / dr);
-    int j = floor(a.r.z / dz);
-    A[i][j] += delta_w;
-
-    photon_pos << a.r.x << "," << a.r.y << "," << a.r.z << endl;
-
-    while (a.life)
+    for (int it = 0; it < 1e4; ++it)
     {
-        double ksi = dis(gen);
+        Photon a = Photon();
 
-        double mit = a.layer == 1 ? mia1 + mis1 : mia2 + mis2;
+        double l0 = -log(get_random()) / (mi_a(1) + mi_s(1));
+        double delta_w = a.w * mi_a(1) / (mi_a(1) + mi_s(1));
 
-        double l = - (log(ksi)) / mit;
-
-        double g = a.layer == 1 ? g1 : g2;
-
-        double cos_theta = (1 + pow(g, 2) - pow((1 - pow(g, 2)) / (1 - g + 2 * g * dis(gen)), 2)) / 2 * g;
-
-        double phi = 2 * M_PI * dis(gen);
-
-        a.change_direction(cos_theta, phi);
-        a.move_photon(l);
-
-        double mia = a.layer == 1 ? mia1 : mia2;
-        delta_w = a.w * mia / mit;
-
+        a.move_photon(l0);
         a.change_w(delta_w);
         
         double t = sqrt(pow(a.r.x, 2) + pow(a.r.y, 2));
@@ -85,36 +67,111 @@ int main()
         int j = floor(a.r.z / dz);
         A[i][j] += delta_w;
 
-        photon_pos << a.r.x << "," << a.r.y << "," << a.r.z << endl;
-
-        if(a.zmiana_osrodka(z1, z2))
+        while (a.life)
         {
+            double mi_t = mi_a(a.layer) + mi_s(a.layer);
+            double g = get_g(a.layer);
 
-        }
+            double cos_theta = (1 + pow(g, 2) - pow((1 - pow(g, 2)) / (1 - g + 2 * g * get_random()), 2)) / (2 * g);
+            double phi = 2 * M_PI * get_random();
 
-        if (a.w < 0.00001)
-        {
-            a.life = false;
+            a.change_direction(cos_theta, phi);
+
+            double ksi = get_random();
+            double l = - (log(ksi)) / mi_t;
+
+            a.move_photon(l);
+
+            if (a.check_if_layer_changes())
+            {
+                int new_layer = a.get_new_layer();
+                int old_layer = a.layer;
+
+                if (old_layer == 1 && new_layer == 0)
+                {
+                    //cout << "do n0 " << a.r.z << endl;
+                    double R = get_R(n1, n0, abs(a.u.z));                   
+                    if (get_random() < R)
+                    {
+                        a.u.z *= -1;
+                    }
+                    else
+                    {
+                        Rd += a.w;
+                        a.life = false;
+                        break;
+                    }
+                }
+
+                if (old_layer == 2 && new_layer == 3)
+                {
+                    //cout << "do n3 " << a.r.z << endl;
+                    Tr += a.w;
+                    a.life = false;
+                    break;
+                }
+
+                if (old_layer == 1 && new_layer == 2)
+                {
+                    //cout << "do n2 " << a.r.z << endl;
+                    double R = get_R(n1, n2, abs(a.u.z));
+                    if (get_random() < R)
+                    {
+                        a.u.z *= -1;
+                    }
+                    else
+                    {
+                        a.layer = 2;
+                    }
+                    
+                }
+
+            }
+
+            double mia = mi_a(a.layer);
+            delta_w = a.w * mia / mi_t;
+
+            a.change_w(delta_w);
+            
+            double t = sqrt(pow(a.r.x, 2) + pow(a.r.y, 2));
+            int i = floor(t / dr);
+            int j = floor(a.r.z / dz);
+            if (i >= 100)
+            {
+                i = 99;
+            }
+            if (j >= 100)
+            {
+                j = 99;
+            }
+            A[i][j] += delta_w;
+
+            if (a.w < 1e-4) // mało fotonów
+            {   
+                double m = get_random();
+                if (m < 0.1)
+                {
+                    a.w /= m;
+                }
+                else
+                {
+                    A[i][j] += delta_w;
+                    a.life = false;
+                }
+            }
+
         }
 
     }
 
-    ofstream myfile;
-    myfile.open("test.csv");
     for (int i = 0; i < 100; ++i)
     {
         for (int j = 0; j < 100; ++j)
         {
-            myfile << A[i][j];
-            if (j < 99)
-            {
-                myfile << ",";
-            }
+            Abs += A[i][j];
         }
-
-        myfile << endl;
     }
-    myfile.close();
 
-    photon_pos.close();
+    cout << Abs << " + " << Rd << " + " << Tr << " = " << (Abs + Rd + Tr) / 1e4 << endl;
+
 }
