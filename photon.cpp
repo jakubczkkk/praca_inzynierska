@@ -9,7 +9,7 @@ void Photon::change_direction(double cos_theta, double phi)
 
     temp u_old = u;
 
-    if (u.x == 0.0 && u.y == 0.0 && u.z == 1.0)
+    if (u.x == 0.0 && u.y == 0.0 && (abs(u.z) >= 1.0 - 1e6))
     {
         u.x = sin_theta * cos_phi;
         u.y = sin_theta * sin_phi;
@@ -20,6 +20,7 @@ void Photon::change_direction(double cos_theta, double phi)
         u.x = (sin_theta * (u_old.x * u_old.z * cos_phi - u_old.y * sin_phi)) / rho + u_old.x * cos_theta;
         u.y = (sin_theta * (u_old.y * u_old.z * cos_phi + u_old.x * sin_phi)) / rho + u_old.y * cos_theta;
         u.z = - rho * sin_theta * cos_phi + u_old.z * cos_theta;
+        // cout << "u: " << u.x << " " << u.y << " " << u.z << endl;
     }
                                               
 }
@@ -29,6 +30,8 @@ void Photon::move_photon(double l)
     r.x += u.x * l;
     r.y += u.y * l;
     r.z += u.z * l;
+
+    // cout << "r: " << r.x << " " << r.y << " " << r.z << endl;
 }
 
 void Photon::change_w(double delta_w)
@@ -61,4 +64,14 @@ int Photon::get_new_layer()
 bool Photon::check_if_layer_changes()
 {
     return !(layer == get_new_layer());
+} 
+
+void Photon::clear_photon()
+{
+    u = temp { 0, 0, 1 };
+    r = temp { 0, 0 ,0 };
+    
+    w = 1;
+    life = true;
+    layer = 1;
 }

@@ -19,7 +19,7 @@ double mis2 = 90;
 
 double romax = 1;
 
-double Nfot = 1e8;
+double Nfot = 1e6;
 
 double z1 = 0.1;
 double z2 = 0.1;

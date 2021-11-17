@@ -28,4 +28,6 @@ class Photon
     int get_new_layer();
     bool check_if_layer_changes();
 
+    void clear_photon();
+
 };
