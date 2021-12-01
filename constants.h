@@ -26,3 +26,5 @@ extern double z2;
 
 extern double dz;
 extern double dr;
+
+extern int N;

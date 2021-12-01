@@ -20,7 +20,6 @@ void Photon::change_direction(double cos_theta, double phi)
         u.x = (sin_theta * (u_old.x * u_old.z * cos_phi - u_old.y * sin_phi)) / rho + u_old.x * cos_theta;
         u.y = (sin_theta * (u_old.y * u_old.z * cos_phi + u_old.x * sin_phi)) / rho + u_old.y * cos_theta;
         u.z = - rho * sin_theta * cos_phi + u_old.z * cos_theta;
-        // cout << "u: " << u.x << " " << u.y << " " << u.z << endl;
     }
                                               
 }
@@ -30,8 +29,6 @@ void Photon::move_photon(double l)
     r.x += u.x * l;
     r.y += u.y * l;
     r.z += u.z * l;
-
-    // cout << "r: " << r.x << " " << r.y << " " << r.z << endl;
 }
 
 void Photon::change_w(double delta_w)
