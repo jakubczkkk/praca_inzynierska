@@ -1,22 +1,26 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+# data = []
+# with open("pos.dat", "r") as f:
+#     data = np.loadtxt(f, delimiter=" ").transpose()
+
+# print(data)
+
 # fig = plt.figure()
 # ax = plt.axes(projection='3d')
 
-# # ax = plt.axes(projection='3d')
-
 # # Data for a three-dimensional line
-# zline = np.linspace(0, 15, 1000)
-# xline = np.sin(zline)
-# yline = np.cos(zline)
-# ax.plot3D(xline, yline, zline, 'gray')
+# # zline = data[2]
+# # xline = data[0]
+# # yline = data[1]
+# # ax.plot3D(xline, yline, zline, 'gray')
 
 # # Data for three-dimensional scattered points
-# zdata = 15 * np.random.random(100)
-# xdata = np.sin(zdata) + 0.1 * np.random.randn(100)
-# ydata = np.cos(zdata) + 0.1 * np.random.randn(100)
-# ax.scatter3D(xdata, ydata, zdata, c=zdata, cmap='Greens')
+# zdata = data[2]
+# xdata = data[0]
+# ydata = data[1]
+# ax.scatter3D(xdata, ydata, zdata, c=data[3], cmap='Greens')
 
 # plt.show()
 
@@ -25,4 +29,4 @@ with open("photon.dat", "r") as f:
     data = np.loadtxt(f, delimiter=" ").transpose()
     
 plt.imshow(np.log(data + 1e-6), cmap="binary")
-plt.savefig("A.png")
+plt.savefig("B.png")

@@ -8,7 +8,9 @@
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				"${workspaceFolder}/*.cpp",
+				"${file}",
+				"${fileDirname}/photon.cpp",
+				"${fileDirname}/tools.cpp",
 				"-o",
 				"${fileDirname}/${fileBasenameNoExtension}"
 			],
@@ -25,4 +27,4 @@
 			"detail": "compiler: /usr/bin/g++"
 		}
 	]
-} 
+}
