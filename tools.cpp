@@ -9,11 +9,11 @@ double g1 = 0.6;
 double g2 = 0.9;
 
 double mia1 = 0.1;
-double mis1 = 1000;
+double mis1 = 300;
 double mia2 = 0.5;
-double mis2 = 1000;
+double mis2 = 300;
 
-double Nfot = 1e6;
+double Nfot = 1;
 
 double z1 = 0.1;
 double z2 = 0.1;

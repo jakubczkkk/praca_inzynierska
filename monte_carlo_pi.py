@@ -1,7 +1,10 @@
 import random as r
 import math as m
 
-def monte_carlo_pi(n):
+def monte_carlo_pi(n: int) -> float:
+
+    import random as r
+    import math as m
 
     i = 0
     for _ in range(n):
@@ -11,6 +14,7 @@ def monte_carlo_pi(n):
             i += 1
 
     return 4 * i / n
+
 
 n = [ 10 ** i for i in range(1, 8) ]
 for i in n:

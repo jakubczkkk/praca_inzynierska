@@ -7,7 +7,7 @@
 
 #include "quaternion.h"
 
-#define N 10000
+#define N 1000
 
 using namespace std;
 
