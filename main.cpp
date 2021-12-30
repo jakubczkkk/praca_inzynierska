@@ -1,18 +1,22 @@
 #include "photon.h"
 
-#include <vector>
-
 using namespace std;
-      
-int main() {
 
-    auto A = new double [N][N]();
+int main(int argc, char * argv[]) {
+
+    if (argc > 1) initialize_parameters(argv);
+
+    cout << "Wczytano paramtetry użytkownika" << endl;
+
+    auto A = array<array<double, N>, N>();
     auto B = vector<vector<double>>();
+
+    cout << "Rozpoczęto symulacje" << endl;
 
     for (int it = 0; it < Nfot; ++it) {
 
         Photon p = Photon();
-        Object o = Object(0.01, 0.01, 0.05, 0.04);
+        Object o = Object(x, y, z, r);
 
         while (p.life) {
 
@@ -24,8 +28,8 @@ int main() {
             p.do_boundaries_check(current_layer, l);
             if (!p.life) break;
 
-            // if (p.check_for_object_collision(o)) p.life = false;
-            // p.check_for_strong_scattering(o, l);
+            if (mode == 2) { if (p.check_for_object_collision(o)) p.life = false; }
+            if (mode == 3) { p.check_for_strong_scattering(o, l); }
 
             double delta_w = p.w * mi_a(current_layer) / mi_t;
             p.change_w(delta_w);
@@ -45,15 +49,17 @@ int main() {
 
             p.check_for_end_of_life(1e-4);
 
-            B.push_back({p.r.x, p.r.y, p.r.z, p.w});
+            if (mode == 1) B.push_back({p.r.x, p.r.y, p.r.z, p.w});
             
         }
 
     }
 
-    // write_photon_data_to_file(A);
-    write_photon_pos_data_to_file(B);
-    
-    delete[] A;
+    cout << "Zakończono " << Nfot << " iteracji" << endl;
+
+    write_photon_data_to_file(A);
+    if (mode == 1)  { write_photon_pos_data_to_file(B); }
+
+    cout << "Zapisano dane do plików" << endl;
 
 }

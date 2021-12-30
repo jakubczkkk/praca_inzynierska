@@ -24,6 +24,13 @@ double xmax = 0.1;
 double dz = (z1 + z2) / N;
 double dx = (xmax - xmin) / N;
 
+double x = 0;
+double y = 0;
+double z = 0.03;
+double r = 0.02;
+
+int mode = 0;
+
 random_device rd;
 mt19937 gen(rd());
 uniform_real_distribution<> dis(0, 1);
@@ -56,7 +63,7 @@ double get_R(double n1, double n2, double cos_theta1) {
     );
 }
 
-void write_photon_data_to_file(double A[N][N]) {
+void write_photon_data_to_file(array<array<double, N>, N>& A) {
 
     ofstream f;
     f.open("photon.dat");
@@ -94,5 +101,24 @@ vector<double> get_t(double xp, double yp, double zp, double a, double b, double
     double C = pow(xp - xk, 2) + pow(yp - yk, 2) + pow(zp - zk, 2) - r;
 
     return { (- B + sqrt(B * B - 4 * A * C)) / (2 * A),   (- B - sqrt(B * B - 4 * A * C)) / (2 * A)};
+
+}
+
+void initialize_parameters(char * args[]) {
+
+    mode = atoi(args[1]);
+    Nfot = atof(args[2]);
+    n1 = atof(args[3]);
+    n2 = atof(args[4]);
+    g1 = atof(args[5]);
+    g2 = atof(args[6]);
+    mis1 = atof(args[7]);
+    mis2 = atof(args[8]);
+    mia1 = atof(args[9]);
+    mia2 = atof(args[10]);
+    x = atof(args[11]);
+    y = atof(args[11]);
+    z = atof(args[11]);
+    r = atof(args[11]);
 
 }
