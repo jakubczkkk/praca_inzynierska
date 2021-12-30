@@ -13,7 +13,7 @@ double mis1 = 300;
 double mia2 = 0.5;
 double mis2 = 300;
 
-double Nfot = 1;
+double Nfot = 1e6;
 
 double z1 = 0.1;
 double z2 = 0.1;
@@ -29,7 +29,7 @@ double y = 0;
 double z = 0.03;
 double r = 0.02;
 
-int mode = 0;
+int mode = 2;
 
 random_device rd;
 mt19937 gen(rd());
@@ -39,11 +39,11 @@ double get_random() {
     return dis(gen);
 }
 
-double mi_a(int n) {
+double get_mi_a(int n) {
     return n == 1 ? mia1 : mia2;
 }
 
-double mi_s(int n) {
+double get_mi_s(int n) {
     return n == 1 ? mis1 : mis2;
 }
 
@@ -104,7 +104,7 @@ vector<double> get_t(double xp, double yp, double zp, double a, double b, double
 
 }
 
-void initialize_parameters(char * args[]) {
+void initialize_parameters(char* args[]) {
 
     mode = atoi(args[1]);
     Nfot = atof(args[2]);
@@ -117,8 +117,8 @@ void initialize_parameters(char * args[]) {
     mia1 = atof(args[9]);
     mia2 = atof(args[10]);
     x = atof(args[11]);
-    y = atof(args[11]);
-    z = atof(args[11]);
-    r = atof(args[11]);
+    y = atof(args[12]);
+    z = atof(args[13]);
+    r = atof(args[14]);
 
 }

@@ -7,7 +7,7 @@ void Photon::change_direction(double cos_theta, double phi) {
     double cos_phi = cos(phi);
     double sin_phi = sin(phi);
     
-    temp u_old = u;
+    Coords u_old = u;
 
     if (u.x == 0.0 && u.y == 0.0 && (abs(u.z) >= 1.0 - 1e6)) {
         u.x = sin_theta * cos_phi;
@@ -23,13 +23,17 @@ void Photon::change_direction(double cos_theta, double phi) {
 }
 
 void Photon::move_photon(double l) {
+
     r.x += u.x * l;
     r.y += u.y * l;
     r.z += u.z * l;
+
 }
 
 void Photon::change_w(double delta_w) {
+
     w -= delta_w;
+
 }
 
 int Photon::get_new_layer() {
@@ -51,42 +55,38 @@ int Photon::get_new_layer() {
 
 }
 
-bool Photon::check_if_layer_changes() {
-    return !(layer == get_new_layer());
-} 
-
-void Photon::do_boundaries_check(int old_layer, double l) {
-
-    if (!check_if_layer_changes()) {
-        return;
-    }
+void Photon::check_boundaries(int old_layer, double l, double& R, double& T) {
 
     int new_layer = get_new_layer();
 
+    if (layer == new_layer) {
+        return;
+    }
+
     if (old_layer == 1 && new_layer == 0) {
 
-        double R = get_R(n1, n0, abs(u.z));
+        double _R = get_R(n1, n0, abs(u.z));
 
-        if (get_random() < R) {
+        if (get_random() < _R) {
 
             move_photon(-l);
             double partial_step = abs(r.z / u.z);
             move_photon(partial_step);
             u.z *= -1;
             move_photon(l - partial_step);
-
         }
         else {
 
+            R += w;
             life = false;
             return;
-
         }
 
     }
 
     if (old_layer == 2 && new_layer == 3) {
 
+        T += w;
         life = false;
         return;
 
@@ -106,6 +106,7 @@ void Photon::do_boundaries_check(int old_layer, double l) {
 
         }
         else {
+
             layer = 2;
         }
 
@@ -131,7 +132,7 @@ void Photon::do_boundaries_check(int old_layer, double l) {
 
 }
 
-void Photon::check_for_end_of_life(double delta) {
+void Photon::check_for_end_of_life(double delta, double& A) {
 
     if (w < delta) { 
 
@@ -147,9 +148,14 @@ void Photon::check_for_end_of_life(double delta) {
 
 }
 
-bool Photon::check_for_object_collision(Object& o) {
+void Photon::check_for_strong_absorbtion(Object& o, double& A) {
 
-    return sqrt(pow(r.x - o.x, 2) + pow(r.y - o.y, 2) + pow(r.z - o.z, 2)) < o.r;
+    if (sqrt(pow(r.x - o.x, 2) + pow(r.y - o.y, 2) + pow(r.z - o.z, 2)) < o.r) {
+
+        life = false;
+        A += w;
+
+    }
 
 }
 
@@ -157,35 +163,21 @@ void Photon::check_for_strong_scattering(Object& o, double l) {
     
     if (sqrt(pow(r.x - o.x, 2) + pow(r.y - o.y, 2) + pow(r.z - o.z, 2)) < o.r) {
 
-        // cout << "here" << endl;
+        move_photon(-l);
 
-        // cout << "na poczatku "; print_pos();
-        move_photon(-l); // zawracamy foton do chwili przed zderzeniem
-        // cout << "cofamy "; print_pos();
-
-        auto T = get_t(r.x, r.y, r.z, u.x, u.y, u.z, o.x, o.y, o.z, o.r*o.r); // szukamy punktów przecięcia t1 i t2 drogi fotonu z obiektem
-
-        // cout << "kierunek " << u.x << " " << u.y << " " << u.z << endl;
-
-        temp t1 = { r.x + u.x * T[0], r.y + u.y * T[0], r.z + u.z * T[0] };
-        temp t2 = { r.x + u.x * T[1], r.y + u.y * T[1], r.z + u.z * T[1] };
-
+        vector<double> T = get_t(r.x, r.y, r.z, u.x, u.y, u.z, o.x, o.y, o.z, o.r*o.r);
+        Coords t1 = { r.x + u.x * T[0], r.y + u.y * T[0], r.z + u.z * T[0] };
+        Coords t2 = { r.x + u.x * T[1], r.y + u.y * T[1], r.z + u.z * T[1] };
         double t1d = sqrt(pow(t1.x - r.x, 2) + pow(t1.y - r.y, 2) + pow(t1.z - r.z, 2));
         double t2d = sqrt(pow(t2.x - r.x, 2) + pow(t2.y - r.y, 2) + pow(t2.z - r.z, 2));
+        Coords P = t1d < t2d ? t1 : t2;
 
-        // cout << "t1: (" << t1.x << ", " << t1.y << ", " << t1.z << ")" << endl;
-        // cout << "t2: (" << t2.x << ", " << t2.y << ", " << t2.z << ")" << endl;
-
-        temp P = t1d < t2d ? t1 : t2; // wybieramy bliższy punkt
-
-        double partial_step = abs((r.z - P.z) / u.z); // ustawiamy foton na kuli
+        double partial_step = abs((r.z - P.z) / u.z);
         move_photon(partial_step);
-        // cout << "foton na kuli: "; print_pos();
 
-        temp ut { o.x - P.x, o.y - P.y, o.z - P.z}; // kierunek osi t (przechodzącej przez środek kuli i foton na kuli)
-
+        Coords ut { o.x - P.x, o.y - P.y, o.z - P.z};
         double ut_norm = sqrt(ut.x * ut.x + ut.y * ut.y + ut.z * ut.z);
-        temp t = { ut.x / ut_norm, ut.y / ut_norm, ut.z / ut_norm }; // normujemy wektor osi t
+        Coords t = { ut.x / ut_norm, ut.y / ut_norm, ut.z / ut_norm };
 
         Quaternion p = Quaternion(cos(M_PI / 2), sin(M_PI / 2) * t.x, sin(M_PI / 2) * t.y, sin(M_PI / 2) * t.z );
         Quaternion ps = Quaternion(cos(M_PI / 2), -sin(M_PI / 2) * t.x, -sin(M_PI / 2) * t.y, -sin(M_PI / 2) * t.z );
@@ -197,7 +189,7 @@ void Photon::check_for_strong_scattering(Object& o, double l) {
         u.z = v2.q3;
 
         move_photon(l - partial_step);
-        // cout << "odbity: "; print_pos();
+
     }
 
 }

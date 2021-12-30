@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QPushButton, QAction, QLineEdit, QMessageBox, QLabel, QRadioButton, QGridLayout
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 from plot import *
@@ -10,20 +10,17 @@ class App(QMainWindow):
     def __init__(self):
 
         super().__init__()
-        self.title = 'PyQt5 textbox - pythonspot.com'
+        self.title = 'Transport fotonów'
         self.left = 10
         self.top = 10
         self.width = 450
-        self.height = 600
+        self.height = 400
         self.initUI()
     
     def initUI(self):
 
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-
-        # layout = QGridLayout()
-        # self.setLayout(layout)
 
         self.nFotLabel = QLabel("NFot", self)
         self.nFotLabel.move(20, 20)
@@ -41,29 +38,29 @@ class App(QMainWindow):
 
         self.g1Label = QLabel("g1", self)
         self.g1Label.move(20, 100)
-        self.g1 = QLineEdit("0.05", self)
+        self.g1 = QLineEdit("0.6", self)
         self.g1.move(50, 100)
         self.g2Label = QLabel("g2", self)
         self.g2Label.move(220, 100)
-        self.g2 = QLineEdit("0.8", self)
+        self.g2 = QLineEdit("0.9", self)
         self.g2.move(250, 100)
         
         self.mis1Label = QLabel("mis1", self)
         self.mis1Label.move(20, 140)
-        self.mis1 = QLineEdit("500", self)
+        self.mis1 = QLineEdit("300", self)
         self.mis1.move(50, 140)
         self.mis2Label = QLabel("mis2", self)
         self.mis2Label.move(220, 140)
-        self.mis2 = QLineEdit("500", self)
+        self.mis2 = QLineEdit("300", self)
         self.mis2.move(250, 140)
         
         self.mia1Label = QLabel("mia1", self)
         self.mia1Label.move(20, 180)
-        self.mia1 = QLineEdit("5", self)
+        self.mia1 = QLineEdit("0.1", self)
         self.mia1.move(50, 180)
         self.mia2Label = QLabel("mia2", self)
         self.mia2Label.move(220, 180)
-        self.mia2 = QLineEdit("25", self)
+        self.mia2 = QLineEdit("0.5", self)
         self.mia2.move(250, 180)
 
         self.xLabel = QLabel("x", self)
@@ -90,20 +87,24 @@ class App(QMainWindow):
         self.r.move(340, 220)
         self.r.resize(70, 30)
 
-        self.button_absorbtion = QPushButton('Rozmieszczenie absorbcji', self)
-        self.button_absorbtion.move(20, 490)
-        self.button_absorbtion.clicked.connect(lambda: self.on_click(0))
+        self.button_default = QPushButton('Rozmieszczenie absorbcji', self)
+        self.button_default.move(20, 290)
+        self.button_default.resize(170, 40)
+        self.button_default.clicked.connect(lambda: self.on_click(0))
 
-        self.button_scattering = QPushButton('Położenie fotonu', self)
-        self.button_scattering.move(220, 490)
-        self.button_scattering.clicked.connect(lambda: self.on_click(1))
+        self.button_position = QPushButton('Położenie fotonu', self)
+        self.button_position.move(240, 290)
+        self.button_position.resize(170, 40)
+        self.button_position.clicked.connect(lambda: self.on_click(1))
 
         self.button_absorbtion = QPushButton('Silne absorbowanie', self)
-        self.button_absorbtion.move(20, 540)
+        self.button_absorbtion.move(20, 340)
+        self.button_absorbtion.resize(170, 40)
         self.button_absorbtion.clicked.connect(lambda: self.on_click(2))
 
         self.button_scattering = QPushButton('Silne rozpraszanie', self)
-        self.button_scattering.move(220, 540)
+        self.button_scattering.move(240, 340)
+        self.button_scattering.resize(170, 40)
         self.button_scattering.clicked.connect(lambda: self.on_click(3))
 
         self.show()
