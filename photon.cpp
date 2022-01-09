@@ -63,7 +63,7 @@ void Photon::check_boundaries(int old_layer, double l, double& R, double& T) {
         return;
     }
 
-    if (old_layer == 1 && new_layer == 0) {
+    if (new_layer == 0) {
 
         double _R = get_R(n1, n0, abs(u.z));
 
@@ -84,7 +84,7 @@ void Photon::check_boundaries(int old_layer, double l, double& R, double& T) {
 
     }
 
-    if (old_layer == 2 && new_layer == 3) {
+    if (new_layer == 3) {
 
         T += w;
         life = false;
@@ -142,6 +142,7 @@ void Photon::check_for_end_of_life(double delta, double& A) {
         }
         else {
             life = false;
+            A += w;
         }
 
     }

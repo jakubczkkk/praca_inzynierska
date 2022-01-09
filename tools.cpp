@@ -13,7 +13,7 @@ double mis1 = 300;
 double mia2 = 0.5;
 double mis2 = 300;
 
-double Nfot = 1e6;
+double Nfot = 10e6;
 
 double z1 = 0.1;
 double z2 = 0.1;
@@ -29,7 +29,7 @@ double y = 0;
 double z = 0.03;
 double r = 0.02;
 
-int mode = 2;
+int mode = 0;
 
 random_device rd;
 mt19937 gen(rd());
